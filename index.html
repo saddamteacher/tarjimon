@@ -1,0 +1,1131 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saddam Teacher — Smart AI Translator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- ==================== style.css ==================== -->
+    <style>
+        /* ===== RESET & VARIABLES ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0A84FF;
+            --primary-dark: #0066CC;
+            --secondary: #30D158;
+            --accent: #AF52DE;
+            --danger: #FF453A;
+            --warning: #FFD60A;
+            --glass-bg: rgba(255, 255, 255, 0.12);
+            --glass-bg-hover: rgba(255, 255, 255, 0.18);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --glass-border-hover: rgba(255, 255, 255, 0.3);
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --text-tertiary: rgba(255, 255, 255, 0.35);
+            --blur-amount: 20px;
+            --radius-xl: 24px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --radius-full: 50px;
+            --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== BODY & BACKGROUND ===== */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+                         'SF Pro Text', 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(140deg,
+                #0a0a1a 0%,
+                #111133 20%,
+                #0d1b2a 40%,
+                #1a1a3e 60%,
+                #0f1628 80%,
+                #0a0a1a 100%
+            );
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Floating gradient blobs — iOS wallpaper style */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            will-change: transform;
+        }
+
+        .blob-1 {
+            width: 480px; height: 480px;
+            background: radial-gradient(circle, rgba(10,132,255,0.55), transparent 70%);
+            top: -120px; left: -80px;
+            animation: drift1 22s ease-in-out infinite;
+        }
+        .blob-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(48,209,88,0.45), transparent 70%);
+            top: 55%; right: -100px;
+            animation: drift2 26s ease-in-out infinite;
+        }
+        .blob-3 {
+            width: 360px; height: 360px;
+            background: radial-gradient(circle, rgba(175,82,222,0.50), transparent 70%);
+            bottom: -80px; left: 28%;
+            animation: drift3 24s ease-in-out infinite;
+        }
+        .blob-4 {
+            width: 280px; height: 280px;
+            background: radial-gradient(circle, rgba(255,55,95,0.40), transparent 70%);
+            top: 32%; left: 55%;
+            animation: drift4 20s ease-in-out infinite;
+        }
+        .blob-5 {
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(255,214,10,0.30), transparent 70%);
+            top: 10%; right: 20%;
+            animation: drift5 28s ease-in-out infinite;
+        }
+
+        @keyframes drift1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25%      { transform: translate(120px, 80px) scale(1.08); }
+            50%      { transform: translate(60px, 180px) scale(0.92); }
+            75%      { transform: translate(160px, 40px) scale(1.04); }
+        }
+        @keyframes drift2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33%      { transform: translate(-140px, -90px) scale(1.12); }
+            66%      { transform: translate(-60px, 80px) scale(0.88); }
+        }
+        @keyframes drift3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50%      { transform: translate(120px, -140px) scale(1.15); }
+        }
+        @keyframes drift4 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25%      { transform: translate(-70px, 70px) scale(0.9); }
+            50%      { transform: translate(50px, -50px) scale(1.1); }
+            75%      { transform: translate(-30px, -30px) scale(1.02); }
+        }
+        @keyframes drift5 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            40%      { transform: translate(-60px, 100px) scale(1.1); }
+            80%      { transform: translate(80px, -40px) scale(0.95); }
+        }
+
+        /* ===== LAYOUT CONTAINER ===== */
+        .app {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== ENTRANCE ANIMATIONS ===== */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes resultPop {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================
+           HEADER
+           ============================ */
+        .header {
+            text-align: center;
+            padding: 28px 20px 20px;
+            animation: slideDown 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .logo {
+            margin-bottom: 18px;
+        }
+
+        .logo-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            line-height: 1.15;
+            background: linear-gradient(135deg, #0A84FF 0%, #30D158 40%, #AF52DE 70%, #FF6B9D 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 6s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50%      { background-position: 100% 50%; }
+        }
+
+        .logo-sub {
+            font-size: clamp(0.72rem, 1.8vw, 0.92rem);
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* Telegram link buttons */
+        .header-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tg-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Glass reflection sweep */
+        .tg-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -120%;
+            width: 60%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.55s ease;
+        }
+        .tg-btn:hover::after { left: 140%; }
+
+        .tg-btn:hover {
+            background: rgba(10, 132, 255, 0.28);
+            border-color: rgba(10, 132, 255, 0.50);
+            box-shadow: 0 0 22px rgba(10, 132, 255, 0.30),
+                         0 0 48px rgba(10, 132, 255, 0.10);
+            transform: translateY(-2px);
+        }
+        .tg-btn:active { transform: translateY(0) scale(0.97); }
+
+        .tg-btn svg {
+            width: 17px; height: 17px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* ============================
+           TRANSLATOR CARD  (main glass panel)
+           ============================ */
+        .translator-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: 32px;
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+        }
+
+        /* Top edge highlight */
+        .translator-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 5%; right: 5%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+        }
+
+        /* Subtle radial glow */
+        .translator-card::after {
+            content: '';
+            position: absolute;
+            top: -60%; left: -30%;
+            width: 160%; height: 160%;
+            background: radial-gradient(ellipse at 35% 20%,
+                rgba(255,255,255,0.04) 0%, transparent 55%);
+            pointer-events: none;
+        }
+
+        /* ===== LANGUAGE SELECTOR ROW ===== */
+        .lang-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            margin-bottom: 22px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .lang-group {
+            flex: 1;
+        }
+
+        .lang-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 8px;
+        }
+
+        .lang-select {
+            width: 100%;
+            padding: 13px 40px 13px 16px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.92rem;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.45)' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+        .lang-select:hover {
+            background-color: rgba(255,255,255,0.11);
+            border-color: rgba(255,255,255,0.22);
+        }
+        .lang-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10,132,255,0.22);
+        }
+        .lang-select option {
+            background: #1c1c3a;
+            color: #fff;
+            padding: 8px;
+        }
+
+        /* Swap button */
+        .swap-btn {
+            width: 50px; height: 50px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: rgba(10,132,255,0.15);
+            border: 1px solid rgba(10,132,255,0.30);
+            color: var(--primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .swap-btn:hover {
+            background: rgba(10,132,255,0.35);
+            box-shadow: 0 0 24px rgba(10,132,255,0.30);
+            transform: rotate(180deg);
+        }
+        .swap-btn:active {
+            transform: rotate(180deg) scale(0.92);
+        }
+        .swap-btn svg {
+            width: 22px; height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ===== TEXT AREAS ROW ===== */
+        .text-panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .panel-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .char-count {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            font-weight: 400;
+            font-variant-numeric: tabular-nums;
+        }
+        .char-count.warn { color: var(--warning); }
+        .char-count.over { color: var(--danger); }
+
+        .panel textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: 0.98rem;
+            font-family: inherit;
+            line-height: 1.65;
+            resize: vertical;
+            transition: var(--transition);
+        }
+        .panel textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+        .panel textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10,132,255,0.15),
+                         0 0 30px rgba(10,132,255,0.08);
+            background: rgba(255,255,255,0.07);
+        }
+        .panel textarea[readonly] {
+            cursor: default;
+        }
+        .panel textarea[readonly]:focus {
+            border-color: rgba(255,255,255,0.20);
+            box-shadow: none;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Small action buttons */
+        .act-btn {
+            padding: 7px 13px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: 0.76rem;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+        .act-btn:hover {
+            background: rgba(255,255,255,0.12);
+            border-color: rgba(255,255,255,0.22);
+            color: var(--text-primary);
+        }
+        .act-btn:active { transform: scale(0.96); }
+
+        .act-btn.success {
+            background: rgba(48,209,88,0.18);
+            border-color: rgba(48,209,88,0.35);
+            color: var(--secondary);
+        }
+
+        .act-btn svg {
+            width: 14px; height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ===== TRANSLATE BUTTON ===== */
+        .translate-row {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .translate-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 56px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: var(--radius-full);
+            color: #fff;
+            font-size: 1.05rem;
+            font-family: inherit;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine sweep on hover */
+        .translate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -120%;
+            width: 80%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,0.22), transparent);
+            transition: left 0.65s ease;
+        }
+        .translate-btn:hover::before { left: 140%; }
+
+        .translate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(10,132,255,0.45),
+                         0 0 80px rgba(10,132,255,0.12);
+        }
+        .translate-btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        /* Loading state */
+        .translate-btn.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 2.5px solid rgba(255,255,255,0.25);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        .translate-btn.loading .spinner { display: block; }
+        .translate-btn.loading .btn-label { opacity: 0.7; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ============================
+           FOOTER
+           ============================ */
+        .footer {
+            text-align: center;
+            padding: 28px 20px 20px;
+            animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
+        }
+
+        .footer-text {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+            font-weight: 400;
+        }
+        .footer-text span { color: #FF453A; }
+
+        .footer-socials {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .social-circle {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .social-circle:hover {
+            background: rgba(10,132,255,0.30);
+            border-color: rgba(10,132,255,0.50);
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 22px rgba(10,132,255,0.30);
+        }
+        .social-circle svg {
+            width: 18px; height: 18px;
+            fill: currentColor;
+        }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast {
+            position: fixed;
+            bottom: 34px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            padding: 13px 28px;
+            border-radius: var(--radius-full);
+            color: #fff;
+            font-size: 0.84rem;
+            font-family: inherit;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 9999;
+            pointer-events: none;
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+            white-space: nowrap;
+        }
+        .toast.success { background: rgba(48,209,88,0.88); }
+        .toast.error   { background: rgba(255,69,58,0.88); }
+        .toast.visible  {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .app { padding: 16px 12px; }
+
+            .header { padding: 20px 12px 16px; }
+
+            .translator-card { padding: 20px 16px; }
+
+            .lang-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .lang-group { min-width: calc(50% - 40px); flex: 1 1 40%; }
+
+            .swap-btn {
+                order: 0;
+                margin: 0 auto;
+                transform: rotate(90deg);
+            }
+            .swap-btn:hover { transform: rotate(270deg); }
+
+            .text-panels {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .panel textarea { min-height: 150px; }
+
+            .translate-btn {
+                width: 100%;
+                padding: 15px 24px;
+            }
+
+            .blob { opacity: 0.35; }
+            .blob-1 { width: 280px; height: 280px; }
+            .blob-2 { width: 240px; height: 240px; }
+            .blob-3 { width: 200px; height: 200px; }
+            .blob-4 { width: 160px; height: 160px; }
+            .blob-5 { width: 140px; height: 140px; }
+        }
+
+        @media (max-width: 420px) {
+            .lang-group { flex: 1 1 100%; }
+            .header-actions { flex-direction: column; align-items: center; }
+        }
+
+        /* ===== CUSTOM SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+        /* Selection */
+        ::selection {
+            background: rgba(10,132,255,0.40);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== ANIMATED BACKGROUND BLOBS ===== -->
+    <div class="bg-canvas" aria-hidden="true">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
+        <div class="blob blob-5"></div>
+    </div>
+
+    <!-- ===== APPLICATION ===== -->
+    <div class="app">
+
+        <!-- ========== HEADER ========== -->
+        <header class="header">
+            <div class="logo">
+                <h1 class="logo-title">Saddam Teacher</h1>
+                <p class="logo-sub">Smart AI Translator</p>
+            </div>
+            <div class="header-actions">
+                <!-- Telegram: Saddam TG -->
+                <a href="https://t.me/saddamtg" target="_blank" rel="noopener" class="tg-btn">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Saddam TG
+                </a>
+                <!-- Telegram: Channel -->
+                <a href="https://t.me/saddamteacher" target="_blank" rel="noopener" class="tg-btn">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    Channel
+                </a>
+            </div>
+        </header>
+
+        <!-- ========== TRANSLATOR CARD ========== -->
+        <main class="translator-card">
+
+            <!-- Language selector row -->
+            <div class="lang-row">
+                <div class="lang-group">
+                    <label class="lang-label" for="srcLang">Translate from</label>
+                    <select class="lang-select" id="srcLang">
+                        <option value="auto">🔍  Auto Detect</option>
+                        <option value="uz">🇺🇿  Uzbek</option>
+                        <option value="en" selected>🇺🇸  English</option>
+                        <option value="ru">🇷🇺  Russian</option>
+                        <option value="tr">🇹🇷  Turkish</option>
+                        <option value="kk">🇰🇿  Kazakh</option>
+                        <option value="ko">🇰🇷  Korean</option>
+                        <option value="ja">🇯🇵  Japanese</option>
+                        <option value="de">🇩🇪  German</option>
+                        <option value="fr">🇫🇷  French</option>
+                        <option value="es">🇪🇸  Spanish</option>
+                        <option value="zh">🇨🇳  Chinese</option>
+                        <option value="ar">🇸🇦  Arabic</option>
+                        <option value="hi">🇮🇳  Hindi</option>
+                        <option value="pt">🇵🇹  Portuguese</option>
+                        <option value="it">🇮🇹  Italian</option>
+                    </select>
+                </div>
+
+                <!-- Swap button -->
+                <button class="swap-btn" id="swapBtn" title="Swap languages" aria-label="Swap languages">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+                        <path d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </button>
+
+                <div class="lang-group">
+                    <label class="lang-label" for="tgtLang">Translate to</label>
+                    <select class="lang-select" id="tgtLang">
+                        <option value="uz" selected>🇺🇿  Uzbek</option>
+                        <option value="en">🇺🇸  English</option>
+                        <option value="ru">🇷🇺  Russian</option>
+                        <option value="tr">🇹🇷  Turkish</option>
+                        <option value="kk">🇰🇿  Kazakh</option>
+                        <option value="ko">🇰🇷  Korean</option>
+                        <option value="ja">🇯🇵  Japanese</option>
+                        <option value="de">🇩🇪  German</option>
+                        <option value="fr">🇫🇷  French</option>
+                        <option value="es">🇪🇸  Spanish</option>
+                        <option value="zh">🇨🇳  Chinese</option>
+                        <option value="ar">🇸🇦  Arabic</option>
+                        <option value="hi">🇮🇳  Hindi</option>
+                        <option value="pt">🇵🇹  Portuguese</option>
+                        <option value="it">🇮🇹  Italian</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Text panels -->
+            <div class="text-panels">
+                <!-- Source panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Original Text</span>
+                        <span class="char-count" id="charCount">0 / 5 000</span>
+                    </div>
+                    <textarea
+                        id="srcText"
+                        placeholder="Type or paste text here…"
+                        maxlength="5000"
+                        spellcheck="false"
+                    ></textarea>
+                    <div class="panel-actions">
+                        <!-- Clear -->
+                        <button class="act-btn" id="clearBtn" title="Clear all text">
+                            <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                            Clear
+                        </button>
+                        <!-- Speak source -->
+                        <button class="act-btn" id="speakSrcBtn" title="Listen to source text">
+                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            Listen
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Target panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Translation</span>
+                    </div>
+                    <textarea
+                        id="tgtText"
+                        readonly
+                        placeholder="Translation will appear here…"
+                    ></textarea>
+                    <div class="panel-actions">
+                        <!-- Copy -->
+                        <button class="act-btn" id="copyBtn" title="Copy translation">
+                            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            <span id="copyLabel">Copy</span>
+                        </button>
+                        <!-- Speak target -->
+                        <button class="act-btn" id="speakTgtBtn" title="Listen to translation">
+                            <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                            Listen
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translate button -->
+            <div class="translate-row">
+                <button class="translate-btn" id="translateBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-label">✦&ensp;Translate</span>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- ========== FOOTER ========== -->
+        <footer class="footer">
+            <p class="footer-text">Made with <span>❤️</span> by Saddam Teacher</p>
+            <div class="footer-socials">
+                <a href="https://t.me/saddamtg" target="_blank" rel="noopener" class="social-circle" title="Saddam TG">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </a>
+                <a href="https://t.me/saddamteacher" target="_blank" rel="noopener" class="social-circle" title="Saddam Teacher Channel">
+                    <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                </a>
+            </div>
+        </footer>
+
+    </div><!-- /.app -->
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast" aria-live="polite"></div>
+
+    <!-- ==================== script.js ==================== -->
+    <script>
+    /**
+     * =============================================
+     *  Saddam Teacher — Smart AI Translator
+     *  Pure JavaScript Translation Engine
+     * =============================================
+     */
+
+    (() => {
+        'use strict';
+
+        // ─── DOM REFERENCES ──────────────────────
+        const $  = (s) => document.querySelector(s);
+        const srcText      = $('#srcText');
+        const tgtText      = $('#tgtText');
+        const srcLang      = $('#srcLang');
+        const tgtLang      = $('#tgtLang');
+        const translateBtn = $('#translateBtn');
+        const swapBtn      = $('#swapBtn');
+        const clearBtn     = $('#clearBtn');
+        const copyBtn      = $('#copyBtn');
+        const copyLabel    = $('#copyLabel');
+        const speakSrcBtn  = $('#speakSrcBtn');
+        const speakTgtBtn  = $('#speakTgtBtn');
+        const charCount    = $('#charCount');
+        const toastEl      = $('#toast');
+
+        const MAX_CHARS = 5000;
+
+        // ─── CHARACTER COUNTER ───────────────────
+        function updateCharCount() {
+            const len = srcText.value.length;
+            charCount.textContent = `${len.toLocaleString()} / ${MAX_CHARS.toLocaleString()}`;
+
+            charCount.classList.remove('warn', 'over');
+            if (len > MAX_CHARS * 0.9) charCount.classList.add('warn');
+            if (len >= MAX_CHARS)       charCount.classList.add('over');
+        }
+
+        srcText.addEventListener('input', () => {
+            if (srcText.value.length > MAX_CHARS) {
+                srcText.value = srcText.value.slice(0, MAX_CHARS);
+            }
+            updateCharCount();
+        });
+
+        // ─── TOAST NOTIFICATIONS ─────────────────
+        let toastTimer = null;
+
+        function showToast(message, type = 'success') {
+            clearTimeout(toastTimer);
+            toastEl.textContent = message;
+            toastEl.className   = `toast ${type}`;
+
+            // Force reflow then show
+            void toastEl.offsetWidth;
+            toastEl.classList.add('visible');
+
+            toastTimer = setTimeout(() => {
+                toastEl.classList.remove('visible');
+            }, 3000);
+        }
+
+        // ─── TRANSLATION API (dual fallback) ────
+        /**
+         * Primary:  Google Translate (unofficial gtx endpoint)
+         * Fallback: MyMemory Translation API
+         */
+        async function callGoogleTranslate(text, from, to) {
+            const url = 'https://translate.googleapis.com/translate_a/single'
+                      + `?client=gtx&sl=${from}&tl=${to}&dt=t`
+                      + `&q=${encodeURIComponent(text)}`;
+
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Google API error');
+
+            const data = await res.json();
+            // data[0] is an array of [translatedSegment, original, ...]
+            let result = '';
+            if (Array.isArray(data[0])) {
+                for (const seg of data[0]) {
+                    if (seg && seg[0]) result += seg[0];
+                }
+            }
+            if (!result) throw new Error('Empty response');
+            return result;
+        }
+
+        async function callMyMemory(text, from, to) {
+            const safeSrc = (from === 'auto') ? 'en' : from;
+            const url = 'https://api.mymemory.translated.net/get'
+                      + `?q=${encodeURIComponent(text)}`
+                      + `&langpair=${safeSrc}|${to}`;
+
+            const res  = await fetch(url);
+            const data = await res.json();
+
+            if (data.responseStatus === 200 && data.responseData) {
+                return data.responseData.translatedText;
+            }
+            throw new Error('MyMemory error');
+        }
+
+        async function translateText(text, from, to) {
+            // Try Google first
+            try {
+                return await callGoogleTranslate(text, from, to);
+            } catch (_) {
+                // Fall back to MyMemory
+                try {
+                    return await callMyMemory(text, from, to);
+                } catch (__) {
+                    throw new Error('Translation services unavailable. Please try again.');
+                }
+            }
+        }
+
+        // ─── MAIN TRANSLATE ACTION ──────────────
+        async function handleTranslate() {
+            const text = srcText.value.trim();
+
+            if (!text) {
+                showToast('Please enter some text first.', 'error');
+                srcText.focus();
+                return;
+            }
+
+            const from = srcLang.value;
+            const to   = tgtLang.value;
+
+            if (from !== 'auto' && from === to) {
+                showToast('Source and target languages are the same.', 'error');
+                return;
+            }
+
+            // UI → loading state
+            translateBtn.classList.add('loading');
+            tgtText.value = '';
+
+            try {
+                const result = await translateText(text, from, to);
+                tgtText.value = result;
+
+                // Pop-in animation for the result
+                tgtText.style.animation = 'none';
+                void tgtText.offsetWidth;          // reflow
+                tgtText.style.animation = 'resultPop 0.45s ease both';
+
+                showToast('Translation complete ✓');
+            } catch (err) {
+                showToast(err.message || 'Translation failed.', 'error');
+            } finally {
+                translateBtn.classList.remove('loading');
+            }
+        }
+
+        translateBtn.addEventListener('click', handleTranslate);
+
+        // Ctrl + Enter shortcut
+        srcText.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleTranslate();
+            }
+        });
+
+        // ─── SWAP LANGUAGES ─────────────────────
+        swapBtn.addEventListener('click', () => {
+            if (srcLang.value === 'auto') {
+                showToast('Cannot swap when using Auto Detect.', 'error');
+                return;
+            }
+
+            // Swap selectors
+            const tmpLang    = srcLang.value;
+            srcLang.value    = tgtLang.value;
+            tgtLang.value    = tmpLang;
+
+            // Swap text content
+            const tmpText    = srcText.value;
+            srcText.value    = tgtText.value;
+            tgtText.value    = tmpText;
+
+            updateCharCount();
+            showToast('Languages swapped ⇄');
+        });
+
+        // ─── CLEAR ──────────────────────────────
+        clearBtn.addEventListener('click', () => {
+            srcText.value = '';
+            tgtText.value = '';
+            updateCharCount();
+            srcText.focus();
+            showToast('Cleared');
+        });
+
+        // ─── COPY TRANSLATION ───────────────────
+        copyBtn.addEventListener('click', async () => {
+            const text = tgtText.value.trim();
+            if (!text) {
+                showToast('Nothing to copy yet.', 'error');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                copyBtn.classList.add('success');
+                copyLabel.textContent = 'Copied!';
+                showToast('Copied to clipboard ✓');
+
+                setTimeout(() => {
+                    copyBtn.classList.remove('success');
+                    copyLabel.textContent = 'Copy';
+                }, 2200);
+            } catch {
+                // Fallback for older browsers
+                tgtText.select();
+                document.execCommand('copy');
+                showToast('Copied to clipboard ✓');
+            }
+        });
+
+        // ─── TEXT-TO-SPEECH (Web Speech API) ─────
+        function speak(text, langCode) {
+            if (!text.trim()) {
+                showToast('No text to speak.', 'error');
+                return;
+            }
+            if (!('speechSynthesis' in window)) {
+                showToast('Speech not supported in this browser.', 'error');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const utt  = new SpeechSynthesisUtterance(text);
+            utt.lang   = (langCode === 'auto') ? 'en' : langCode;
+            utt.rate   = 0.95;
+            utt.pitch  = 1;
+
+            window.speechSynthesis.speak(utt);
+        }
+
+        speakSrcBtn.addEventListener('click', () => speak(srcText.value, srcLang.value));
+        speakTgtBtn.addEventListener('click', () => speak(tgtText.value, tgtLang.value));
+
+        // ─── INIT ───────────────────────────────
+        updateCharCount();
+
+    })();
+    </script>
+
+</body>
+</html>
+```
